@@ -2,12 +2,23 @@
 namespace OpenGK;
 public abstract class Scene
 {
+    public Shader DefaultShader  { get; private set; } = new();
+
     public Scene()
     {
 
     }
 
-    public abstract void OnStart();
-    public abstract void OnUpdate(float dt);
-    public abstract void OnEnd();
+    public virtual void OnStart()
+    {
+        DefaultShader = new();
+    }
+    public virtual void OnUpdate(float dt)
+    {
+
+    }
+    public virtual void OnEnd()
+    {
+
+    }
 }

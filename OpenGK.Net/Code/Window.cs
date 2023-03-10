@@ -44,6 +44,14 @@ public class Window
         }
     }
 
+    public bool IsReady() 
+    {
+        unsafe
+        {
+            return window != null;
+        }
+    }
+
     public void Clear()
     {
         unsafe 
@@ -107,6 +115,8 @@ public class Window
         var deltaTime = -1f;
         var beginTime = Time.GetTime();
         var endTime   = 0f;
+
+        this.scene?.OnStart();
         while(!GLFW.WindowShouldClose(window))
         {
             // Poll events
