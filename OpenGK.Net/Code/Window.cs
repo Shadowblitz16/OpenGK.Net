@@ -19,6 +19,8 @@ public class Window
     #region Fields
    
     private unsafe GLFWWindow* window;
+
+    private Scene? scene = null;
     private string title  = "Mario";
     private int    width  = 1920;
     private int    height = 1080;
@@ -27,6 +29,12 @@ public class Window
     
     #endregion
     
+    public void GoTo(Scene scene)
+    {
+        this?.scene?.OnEnd();
+        this.scene = scene;
+        this?.scene?.OnStart();
+    }
 
     public void Quit()
     {
@@ -45,8 +53,9 @@ public class Window
         }
     }
 
-    public void Run()
+    public void Run(Scene scene)
     {
+        this.scene = scene;
         unsafe 
         {
             Init();
@@ -107,7 +116,8 @@ public class Window
             Clear();
 
             // Update game
-            // TODO
+            if (deltaTime >= 0)
+                this.scene?.OnUpdate(deltaTime);
 
             // End input frame
             Keyboard.EndFrame();
@@ -124,6 +134,9 @@ public class Window
     }
     private unsafe void Free()
     {
+        // End scene
+        this?.scene?.OnEnd();
+
         // Free the key callbacks
         GLFW.SetKeyCallback(window, null);
 
@@ -139,11 +152,13 @@ public class Window
         GLFW.Terminate();
         GLFW.SetErrorCallback(null);
     }
+    
 
     private void OnError(ErrorCode error, string description)
     {
         Console.WriteLine(description);
     }
+
 
     public static unsafe implicit operator GLFWWindow*(Window w)
     {

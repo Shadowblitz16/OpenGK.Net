@@ -1,3 +1,3 @@
 using OpenGK;
 
-Window.Instance.Run();
+Window.Instance.Run(new EditorScene());
