@@ -5,10 +5,10 @@ public class EditorScene : Scene
     float[] vArray = 
     {
         // position             // color
-         0.5f, -0.5f, 0.0f,      1.0f, 0.0f, 0.0f, 1.0f, // 0:Bottom right
-        -0.5f,  0.5f, 0.0f,      0.0f, 1.0f, 0.0f, 1.0f, // 1:Top left
-         0.5f,  0.5f, 0.0f,      0.0f, 0.0f, 1.0f, 1.0f, // 2:Top right
-        -0.5f, -0.5f, 0.0f,      1.0f, 1.0f, 0.0f, 1.0f, // 3:Bottom left
+         100.5f,  000.5f, 0.0f,      1.0f, 0.0f, 0.0f, 1.0f, // 0:Bottom right
+         000.5f,  100.5f, 0.0f,      0.0f, 1.0f, 0.0f, 1.0f, // 1:Top left
+         100.5f,  100.5f, 0.0f,      0.0f, 0.0f, 1.0f, 1.0f, // 2:Top right
+         000.5f,  000.5f, 0.0f,      1.0f, 1.0f, 0.0f, 1.0f, // 3:Bottom left
     };
 
     // Important: Must be in counter-clockwise order
@@ -21,6 +21,8 @@ public class EditorScene : Scene
     int vao, vbo, ebo;
     public override void OnStart()
     {
+        base.OnStart();
+
         // Create vao and bind it
         vao = GL.GenVertexArray();
         GL.BindVertexArray(vao);
@@ -51,8 +53,12 @@ public class EditorScene : Scene
     }
     public override void OnUpdate(float dt)
     {
+        base.OnUpdate(dt);
+
+        DefaultCamera.Translate(-dt * 50f, 0);
+
         // Bind shader
-        DefaultShader.Begin();
+        DefaultCamera.Begin();
 
         // Bind the vao
         GL.BindVertexArray(vao);
@@ -72,10 +78,10 @@ public class EditorScene : Scene
         GL.BindVertexArray(0);
 
         // Unbind shader
-        DefaultShader.End();
+        DefaultCamera.End();
     }
     public override void OnEnd()
     {
-        
+        base.OnEnd();
     }
 }

@@ -2,7 +2,7 @@
 namespace OpenGK;
 public abstract class Scene
 {
-    public Shader DefaultShader  { get; private set; } = new();
+    public Camera DefaultCamera  { get; private set; } = new();
 
     public Scene()
     {
@@ -11,7 +11,7 @@ public abstract class Scene
 
     public virtual void OnStart()
     {
-        DefaultShader = new();
+        DefaultCamera = new();
     }
     public virtual void OnUpdate(float dt)
     {

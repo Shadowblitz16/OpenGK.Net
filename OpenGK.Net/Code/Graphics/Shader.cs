@@ -1,4 +1,5 @@
 using OpenTK.Graphics.ES30;
+using OpenTK.Mathematics;
 using System.Text.RegularExpressions;
 namespace OpenGK;
 public class Shader
@@ -9,13 +10,15 @@ public class Shader
 layout (location=0) in vec3 aPos;
 layout (location=1) in vec4 aColor;
 
+uniform mat4 uProjection;
+uniform mat4 uView;
 
 out vec4 fColor;
 
 void main()
 {{
     fColor = aColor;
-    gl_Position = vec4(aPos, 1.0);
+    gl_Position = uProjection * uView * vec4(aPos, 1.0);
 }}";
     private static string fDefaultShaderSource = @$"
 #version 330 core
@@ -180,6 +183,12 @@ void main()
         }
     }
 
+    public void Begin(Camera camera)
+    {
+        Begin();
+        UploadMatrix("uProjection", camera.GetProjection());
+        UploadMatrix("uView"      , camera.GetView());
+    }
     public void Begin()
     {
         if (sId == 0 || bound) return;
@@ -191,5 +200,11 @@ void main()
     {
         GL.UseProgram(0);
         bound = false;
+    }
+
+    public void UploadMatrix(string varName, Matrix4 matrix)
+    {
+        var varLocation = GL.GetUniformLocation(sId, varName);
+        GL.UniformMatrix4(varLocation, false, ref matrix);
     }
 }
