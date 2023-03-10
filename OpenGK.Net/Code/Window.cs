@@ -53,6 +53,9 @@ public class Window
         window = GLFW.CreateWindow(this.width, this.height, this.title, null, null);
         if (window == null) throw new InvalidOperationException("Unable to create GLFW window.");
 
+        // Set key callbacks
+        GLFW.SetKeyCallback(window, Keyboard.KeyCallback);
+
         // Make the opengl context current
         GLFW.MakeContextCurrent(window);
 
@@ -79,6 +82,8 @@ public class Window
             // Update game
             // TODO
 
+            // End input frame
+            Keyboard.EndFrame();
 
             // Swap backbuffer
             GLFW.SwapBuffers(window);
@@ -86,6 +91,9 @@ public class Window
     }
     private unsafe void Free()
     {
+        // Free the key callbacks
+        GLFW.SetKeyCallback(window, null);
+
         // Free the memory
         GLFW.DestroyWindow(window);
 
