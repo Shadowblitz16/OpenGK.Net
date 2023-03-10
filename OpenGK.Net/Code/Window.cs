@@ -3,6 +3,7 @@ using OpenTK.Windowing.GraphicsLibraryFramework;
 using ErrorCode  = OpenTK.Windowing.GraphicsLibraryFramework.ErrorCode;
 using GLFWWindow = OpenTK.Windowing.GraphicsLibraryFramework.Window;
 
+namespace OpenGK;
 public class Window
 {
     #region Singleton
@@ -85,7 +86,12 @@ public class Window
     }
     private unsafe void Free()
     {
+        // Free the memory
         GLFW.DestroyWindow(window);
+
+        // Terminate GLFW and free the error callback
+        GLFW.Terminate();
+        GLFW.SetErrorCallback(null);
     }
 
     private void OnError(ErrorCode error, string description)
