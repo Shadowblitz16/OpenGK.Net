@@ -75,6 +75,9 @@ public class Window
 
     private unsafe void Loop()
     {
+        var deltaTime = 0f;
+        var beginTime = Time.GetTime();
+        var endTime   = Time.GetTime();
         while(!GLFW.WindowShouldClose(window))
         {
             // Poll events
@@ -93,6 +96,11 @@ public class Window
 
             // Swap backbuffer
             GLFW.SwapBuffers(window);
+
+            // Delta time
+            endTime   = Time.GetTime();
+            deltaTime = endTime - beginTime;
+            beginTime = endTime;
         }
     }
     private unsafe void Free()
