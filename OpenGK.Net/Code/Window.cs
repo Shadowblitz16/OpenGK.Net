@@ -22,9 +22,29 @@ public class Window
     private string title  = "Mario";
     private int    width  = 1920;
     private int    height = 1080;
+    public float R = 1, G = 1, B = 1, A = 1;
+
     
     #endregion
     
+
+    public void Quit()
+    {
+        unsafe
+        {
+            GLFW.SetWindowShouldClose(window, true);
+        }
+    }
+
+    public void Clear()
+    {
+        unsafe 
+        {
+            GL.ClearColor(R,G,B,A);
+            GL.Clear(ClearBufferMask.ColorBufferBit);
+        }
+    }
+
     public void Run()
     {
         unsafe 
@@ -75,17 +95,16 @@ public class Window
 
     private unsafe void Loop()
     {
-        var deltaTime = 0f;
+        var deltaTime = -1f;
         var beginTime = Time.GetTime();
-        var endTime   = Time.GetTime();
+        var endTime   = 0f;
         while(!GLFW.WindowShouldClose(window))
         {
             // Poll events
             GLFW.PollEvents();
             
-            // Clear to black
-            GL.ClearColor(1,0,0,0);
-            GL.Clear(ClearBufferMask.ColorBufferBit);
+            // Clear
+            Clear();
 
             // Update game
             // TODO
@@ -124,5 +143,10 @@ public class Window
     private void OnError(ErrorCode error, string description)
     {
         Console.WriteLine(description);
+    }
+
+    public static unsafe implicit operator GLFWWindow*(Window w)
+    {
+        return w.window;
     }
 }
