@@ -56,6 +56,11 @@ public class Window
         // Set key callbacks
         GLFW.SetKeyCallback(window, Keyboard.KeyCallback);
 
+        // Set mouse callbacks
+        GLFW.SetCursorPosCallback  (window, Mouse.MoveCallback  );
+        GLFW.SetScrollCallback     (window, Mouse.ScrollCallback);
+        GLFW.SetMouseButtonCallback(window, Mouse.ButtonCallback);
+
         // Make the opengl context current
         GLFW.MakeContextCurrent(window);
 
@@ -84,6 +89,7 @@ public class Window
 
             // End input frame
             Keyboard.EndFrame();
+            Mouse.EndFrame();
 
             // Swap backbuffer
             GLFW.SwapBuffers(window);
@@ -93,6 +99,11 @@ public class Window
     {
         // Free the key callbacks
         GLFW.SetKeyCallback(window, null);
+
+        // Free mouse callbacks
+        GLFW.SetCursorPosCallback  (window, null);
+        GLFW.SetScrollCallback     (window, null);
+        GLFW.SetMouseButtonCallback(window, null);
 
         // Free the memory
         GLFW.DestroyWindow(window);
