@@ -56,6 +56,8 @@ public class Camera
         shader.End();
     }
 
+    public Shader GetShader() => shader;
+
     public void Translate(float x, float y)
     {
         position += new Vector2(x,y);

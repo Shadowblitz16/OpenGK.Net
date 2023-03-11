@@ -12,6 +12,7 @@ public class Shader
 
 layout (location=0) in vec3 aPos;
 layout (location=1) in vec4 aColor;
+layout (location=2) in vec2 aTexCoords;
 
 uniform mat4  uProjection;
 uniform mat4  uView;
@@ -19,11 +20,13 @@ uniform float uTime;
 
 out vec4  fColor;
 out float fTime;
+out vec2  fTexCoords;
 
 void main()
 {{
     fColor = aColor;
     fTime  = uTime;
+    fTexCoords = aTexCoords;
     gl_Position = uProjection * uView * vec4(aPos, 1.0);
 }}";
     private static string fDefaultShaderSource = @$"
@@ -31,13 +34,15 @@ void main()
 
 in vec4  fColor;
 in float fTime;
+in vec2 fTexCoords;
 
 out vec4 color;
 
+uniform sampler2D texture0;
+
 void main()
 {{
-    float noise = fract(sin(dot(fColor.xy, vec2(12.9898, 78.233))) * 43758.5453);
-    color = fColor * noise;
+    color = texture(texture0, fTexCoords);
 }}";
     private int    sId, vId, fId;
     private bool   bound;
@@ -78,13 +83,6 @@ void main()
     #endregion
     #region Utility      
    
-    private static string ReadToEnd(Stream stream)
-    {
-        using (var reader = new StreamReader(stream))
-        {
-            return reader.ReadToEnd();
-        }
-    }
     private void CompileProgram()
     {
         // Create program
@@ -156,73 +154,68 @@ void main()
     
     public Shader() 
     {
+        this.sId = 0;
+        this.vId = 0;
+        this.fId = 0;
+
         if (Window.Instance.IsReady())
         {
             CompileProgram();
         }
-        else
-        {
-            this.sId = 0;
-            this.vId = 0;
-            this.fId = 0;
-        }
     }
-    public Shader(string source)
+    public Shader(string file) : this()
     {
-        if (Window.Instance.IsReady())
+        if (!File.Exists(file)) return;
+        using (var stream = File.Open(file, FileMode.Open, FileAccess.Read))
+        using (var reader = new StreamReader(stream))
         {
-            string[] split = Regex.Split(source, "#type +[a-zA-Z]+");
+            var source = reader.ReadToEnd();
 
-            // Find first match
-            int index1 = source.IndexOf("#type")+6;
-            int index2 = source.IndexOf(Environment.NewLine, index1);
-            var match1 = source.Substring(index1, index2-index1).Trim();
+            if (Window.Instance.IsReady())
+            {
+                string[] split = Regex.Split(source, "#type +[a-zA-Z]+");
 
-            // Find second match
-            int index3 = source.IndexOf("#type", index2)+6;
-            int index4 = source.IndexOf(Environment.NewLine, index3);
-            var match2 = source.Substring(index3, index4-index3).Trim();
+                // Find first match
+                int index1 = source.IndexOf("#type")+6;
+                int index2 = source.IndexOf(Environment.NewLine, index1);
+                var match1 = source.Substring(index1, index2-index1).Trim();
 
-            // check if first match is vertex, fragment or error
-            if      (match1.Equals("vertex"  ))
-            {
-                vSource = split[0];
-            }
-            else if (match1.Equals("fragment"))
-            {
-                fSource = split[0];
-            }
-            else 
-            {
-                throw new FormatException($"Unexpected token '{match1}'");
-            }
+                // Find second match
+                int index3 = source.IndexOf("#type", index2)+6;
+                int index4 = source.IndexOf(Environment.NewLine, index3);
+                var match2 = source.Substring(index3, index4-index3).Trim();
+
+                // check if first match is vertex, fragment or error
+                if      (match1.Equals("vertex"  ))
+                {
+                    vSource = split[0];
+                }
+                else if (match1.Equals("fragment"))
+                {
+                    fSource = split[0];
+                }
+                else 
+                {
+                    throw new FormatException($"Unexpected token '{match1}'");
+                }
+                
+                // check if second match is vertex, fragment or error
+                if      (match2.Equals("vertex"  ))
+                {
+                    vSource = split[1];
+                }
+                else if (match2.Equals("fragment"))
+                {
+                    fSource = split[1];
+                } 
+                else 
+                {
+                    throw new FormatException($"Unexpected token '{match2}'");
+                }
             
-            // check if second match is vertex, fragment or error
-            if      (match2.Equals("vertex"  ))
-            {
-                vSource = split[1];
+                CompileProgram();
             }
-            else if (match2.Equals("fragment"))
-            {
-                fSource = split[1];
-            } 
-            else 
-            {
-                throw new FormatException($"Unexpected token '{match2}'");
-            }
-        
-            CompileProgram();
         }
-        else
-        {
-            this.sId = 0;
-            this.vId = 0;
-            this.fId = 0;
-        }
-    }
-    public Shader(Stream stream) : this(ReadToEnd(stream))
-    {
-
     }
 
     #endregion
@@ -465,6 +458,17 @@ void main()
         var varLocation = GL.GetUniformLocation(sId, varName);
         GL.UniformMatrix4(varLocation, false, ref matrix);
     }
+    
+    #endregion
+    #region Upload Texture
+    
+    public void UploadSampler2D(string varName, int slot)
+    {
+        Begin();
+        var varLocation = GL.GetUniformLocation(sId, varName);
+        GL.Uniform1(varLocation, slot);
+    }
+    
     
     #endregion
 }
